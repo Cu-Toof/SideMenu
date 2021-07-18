@@ -781,16 +781,18 @@ extension SideMenuController: UIGestureRecognizerDelegate {
     }
 
     private func isValidateHorizontalMovement(for velocity: CGPoint) -> Bool {
-        if isMenuRevealed {
-            return true
-        }
-
+        // Reject if pan's direction is vertical
+        let radian = atan(velocity.y / velocity.x)
+        let degree = radian * 180 / CGFloat.pi
+        let thresholdAngle: CGFloat = 20.0
+        if (abs(degree) > thresholdAngle) { return false }
+        
+        // Continue if pan's direction is horizontal
+        if isMenuRevealed { return true }
         let direction = preferences.basic.direction
         var factor: CGFloat = direction == .left ? 1 : -1
         factor *= shouldReverseDirection ? -1 : 1
-        guard velocity.x * factor > 0 else {
-            return false
-        }
+        guard velocity.x * factor > 0 else { return false }
         return abs(velocity.y / velocity.x) < preferences.basic.panGestureSensitivity
     }
 }
